@@ -68,16 +68,26 @@ router.post("/login/:email", authLimiter, login);
 
 /**
  * @swagger
- * /api/v1/auth/logout:
+ * /api/v1/auth/logout/{email}:
  *   post:
  *     summary: Logout user
  *     tags: [Authentication]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         example: user@example.com
  *     responses:
  *       200:
  *         description: Logout successful
- *       401:
- *         description: Unauthorized
+ *       400:
+ *         description: User is already logged out
+ *       404:
+ *         description: User not found
  */
-router.post("/logout", logout);
+router.post("/logout/:email", logout);
 
 module.exports = router;
