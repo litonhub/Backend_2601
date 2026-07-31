@@ -9,8 +9,7 @@ const userSchema = new Schema({
     },
     otp: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     isLogin:{
         type: Boolean,

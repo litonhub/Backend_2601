@@ -1,16 +1,7 @@
-const otpGenerator = require("otp-generator");
-const nodemailer = require("nodemailer");
 const User = require("../models/userSchema");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const { generateOtp } = require("../services/otpService");
+const { sendMail } = require("../services/mailService");
+const { otpTemplate } = require("../templates/otpTemplate");
 
 exports.sendOtp = async (req, res) => {
   try {
@@ -23,17 +14,12 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    const otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    });
+    const otp = generateOtp();
 
-    const info = await transporter.sendMail({
-      from: '"Node 2601" <liton01766@gmail.com>',
+    await sendMail({
       to: email,
       subject: "Your OTP Verification Code",
-      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>OTP Verification</title></head><body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;"><tr><td align="center"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden;"><tr><td align="center" style="background:#2563eb;padding:30px;color:#fff;font-size:28px;font-weight:bold;">Verify Your Email</td></tr><tr><td style="padding:40px 35px;color:#333;"><h2 style="margin:0 0 20px;">Hello 👋</h2><p style="margin:0 0 25px;font-size:16px;line-height:1.7;color:#555;">Use the OTP below to verify your email address.</p><table role="presentation" align="center" cellpadding="0" cellspacing="0"><tr><td style="background:#f3f4f6;border:2px dashed #2563eb;border-radius:10px;padding:18px 40px;font-size:34px;font-weight:bold;letter-spacing:8px;color:#2563eb;">${otp}</td></tr></table><p style="margin:30px 0 0;font-size:15px;color:#666;">This OTP is valid for <strong>10 minutes</strong>. Never share it with anyone.</p></td></tr></table></td></tr></table></body></html>`,
+      html: otpTemplate(otp),
     });
 
     const existingUser = await User.findOne({ email });
