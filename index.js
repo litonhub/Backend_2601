@@ -4,8 +4,10 @@ const dbConnection = require("./config/dbConnection");
 const authRoutes = require('./routes/authRoutes')
 const { swaggerUi, specs } = require("./config/swagger");
 const { apiLimiter } = require('./middleware/rateLimiter');
+const cors = require("cors");
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 dbConnection();

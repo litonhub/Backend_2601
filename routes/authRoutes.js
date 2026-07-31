@@ -5,7 +5,7 @@ const { authLimiter } = require("../middleware/rateLimiter");
 
 /**
  * @swagger
- * /api/auth/sendotp:
+ * /api/v1/auth/sendotp:
  *   post:
  *     summary: Send OTP to user email
  *     tags: [Authentication]
@@ -32,7 +32,7 @@ router.post("/sendotp", authLimiter, sendOtp);
 
 /**
  * @swagger
- * /api/auth/login/{email}:
+ * /api/v1/auth/login/{email}:
  *   post:
  *     summary: Verify OTP and login user
  *     tags: [Authentication]
@@ -68,7 +68,7 @@ router.post("/login/:email", authLimiter, login);
 
 /**
  * @swagger
- * /api/auth/logout:
+ * /api/v1/auth/logout:
  *   post:
  *     summary: Logout user
  *     tags: [Authentication]
