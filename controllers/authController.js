@@ -64,7 +64,7 @@ exports.login = async (req, res) => {
     if (!existingUser.otp) {
       return res.status(400).json({
         success: false,
-        message: "OTP expired",
+        message: "OTP invalid or expired.",
       });
     }
 
