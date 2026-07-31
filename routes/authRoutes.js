@@ -1,20 +1,14 @@
 const express = require("express");
-const { authLimiter, apiLimiter } = require("../middleware/rateLimiter");
 const router = express.Router();
-
-
-router.get("/greeting", apiLimiter, (req, res)=>{
-    res.send("Hello Developers")
-})
+const { sendOtp, login, logout } = require("../controllers/authController");
+const { authLimiter } = require("../middleware/rateLimiter");
 
 /**
  * @swagger
- * /api/auth/register:
+ * /api/auth/sendotp:
  *   post:
- *     summary: Register a new user
- *     description: Creates a new user account.
- *     tags:
- *       - Authentication
+ *     summary: Send OTP to user email
+ *     tags: [Authentication]
  *     requestBody:
  *       required: true
  *       content:
@@ -22,69 +16,68 @@ router.get("/greeting", apiLimiter, (req, res)=>{
  *           schema:
  *             type: object
  *             required:
- *               - name
  *               - email
- *               - password
  *             properties:
- *               name:
- *                 type: string
- *                 example: John Doe
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john@example.com
- *               password:
- *                 type: string
- *                 format: password
- *                 example: Password@123
+ *                 example: user@example.com
  *     responses:
- *       201:
- *         description: User registered successfully.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: User registered successfully
- *                 user:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 6899d84af7d1f5c2c4b0e001
- *                     name:
- *                       type: string
- *                       example: John Doe
- *                     email:
- *                       type: string
- *                       example: john@example.com
+ *       200:
+ *         description: OTP sent successfully
  *       400:
- *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Email already exists
- *       500:
- *         description: Internal server error
+ *         description: Email is required
  */
-router.post("/register", authLimiter, async (req, res) => {
-    res.status(201).json({
-        success: true,
-        message: "User registerd successfully",
-    });
-});
+router.post("/sendotp", authLimiter, sendOtp);
 
+/**
+ * @swagger
+ * /api/auth/login/{email}:
+ *   post:
+ *     summary: Verify OTP and login user
+ *     tags: [Authentication]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         example: user@example.com
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - otp
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Invalid OTP
+ *       404:
+ *         description: User not found
+ */
+router.post("/login/:email", authLimiter, login);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/logout", logout);
 
 module.exports = router;
